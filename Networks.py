@@ -45,17 +45,22 @@ class Generator(nn.Module):
         if not final_layer:
             return nn.Sequential(
                 #### START CODE HERE ####
-                nn.ConvTranspose2d(in_channels, out_channels, (kernel_size, kernel_size), stride)
-            nn
-
-            #### END CODE HERE ####
+                nn.ConvTranspose2d(in_channels= input_channels, out_channels= output_channels, kernel_size= kernel_size, stride= stride),
+                nn.BatchNorm2d(num_features= output_channels),
+                nn.ReLU(inplace=True)
             )
-            else: # Final Layer
-            return nn.Sequential(
-                #### START CODE HERE ####
-
                 #### END CODE HERE ####
-            )
+
+        else:
+            # Final Layer
+            return nn.Sequential(
+
+            #### START CODE HERE ####
+                nn.ConvTranspose2d(in_channels=input_channels, out_channels=output_channels,
+                                   kernel_size=kernel_size, stride=stride),
+                nn.Tanh())
+                #### END CODE HERE ####
+
 
     def unsqueeze_noise(self, noise):
         '''
@@ -76,13 +81,6 @@ class Generator(nn.Module):
         x = self.unsqueeze_noise(noise)
         return self.gen(x)
 
-def get_noise(n_samples, z_dim, device='cpu'):
-    '''
-    Function for creating noise vectors: Given the dimensions (n_samples, z_dim)
-    creates a tensor of that shape filled with random numbers from the normal distribution.
-    Parameters:
-        n_samples: the number of samples to generate, a scalar
-        z_dim: the dimension of the noise vector, a scalar
-        device: the device type
-    '''
-    return torch.randn(n_samples, z_dim, device=device)
+
+
+
