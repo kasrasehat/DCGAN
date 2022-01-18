@@ -10,11 +10,14 @@ class Generator(nn.Module):
         im_chan: the number of channels in the images, fitted for the dataset used, a scalar
               (MNIST is black-and-white, so 1 channel is your default)
         hidden_dim: the inner dimension, a scalar
+
+    Input: (N,Cin,Hin,Win)
+    Output: (N,Cout,Hout,Wout)
+    Hout=(Hin−1)×stride[0]−2×padding[0]+dilation[0]×(kernel_size[0]−1)+output_padding[0]+1
     '''
     def __init__(self, z_dim=10, im_chan=1, hidden_dim=64):
         super(Generator, self).__init__()
         self.z_dim = z_dim
-        # Build the neural network
         self.gen = nn.Sequential(
             self.make_gen_block(z_dim, hidden_dim * 4),
             self.make_gen_block(hidden_dim * 4, hidden_dim * 2, kernel_size=4, stride=1),
@@ -34,33 +37,18 @@ class Generator(nn.Module):
             final_layer: a boolean, true if it is the final layer and false otherwise
                       (affects activation and batchnorm)
         '''
-
-        #     Steps:
-        #       1) Do a transposed convolution using the given parameters.
-        #       2) Do a batchnorm, except for the last layer.
-        #       3) Follow each batchnorm with a ReLU activation.
-        #       4) If its the final layer, use a Tanh activation after the deconvolution.
-
-        # Build the neural block
         if not final_layer:
             return nn.Sequential(
-                #### START CODE HERE ####
                 nn.ConvTranspose2d(in_channels= input_channels, out_channels= output_channels, kernel_size= (kernel_size, kernel_size), stride= stride),
                 nn.BatchNorm2d(num_features= output_channels),
                 nn.ReLU(inplace=True)
             )
-                #### END CODE HERE ####
 
         else:
-            # Final Layer
             return nn.Sequential(
-
-            #### START CODE HERE ####
                 nn.ConvTranspose2d(in_channels=input_channels, out_channels=output_channels,
                                    kernel_size=(kernel_size, kernel_size), stride=stride),
                 nn.Tanh())
-                #### END CODE HERE ####
-
 
     def unsqueeze_noise(self, noise):
         '''
@@ -111,22 +99,13 @@ class Discriminator(nn.Module):
             final_layer: a boolean, true if it is the final layer and false otherwise
                       (affects activation and batchnorm)
         '''
-        #     Steps:
-        #       1) Add a convolutional layer using the given parameters.
-        #       2) Do a batchnorm, except for the last layer.
-        #       3) Follow each batchnorm with a LeakyReLU activation with slope 0.2.
-        #       Note: Don't use an activation on the final layer
-
-        # Build the neural block
         if not final_layer:
             return nn.Sequential(
-                #### START CODE HERE #### #
+
                 nn.Conv2d(in_channels=input_channels, out_channels=output_channels,
                           kernel_size=(kernel_size, kernel_size), stride=stride),
                 nn.BatchNorm2d(output_channels),
                 nn.LeakyReLU(0.2)
-
-                #### END CODE HERE ####
             )
         else:  # Final Layer
             return nn.Sequential(
